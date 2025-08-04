@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang='vi'>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bài tâp hóa học ABC</title>
+
+  <!-- Sử dụng Google Fonts cho giao diện hiện đại -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$']] },
+      chtml: { scale: 0.9 },
+      svg: { fontCache: 'global' }
+    };
+    function drop(ev) {
+      ev.preventDefault();
+      var data = ev.dataTransfer.getData("text");
+      var draggable = document.getElementById(data);
+      var dropZone = ev.target;
+      while (dropZone && !dropZone.classList.contains("dropzone") && dropZone.tagName !== "BODY") {
+        dropZone = dropZone.parentNode;
+      }
+      if (!dropZone) return;
+      var label = dropZone.querySelector(".drop-label");
+      if (label) {
+         if (label.nextSibling) {
+           dropZone.insertBefore(draggable, label.nextSibling);
+         } else {
+           dropZone.appendChild(draggable);
+         }
+      } else {
+         dropZone.appendChild(draggable);
+      }
+    }
+    function allowDrop(ev) { ev.preventDefault(); }
+    function drag(ev) { ev.dataTransfer.setData("text", ev.target.id); }
+  </script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f2f5;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .top-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+    }
+    .score-box {
+      background: #4CAF50;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1.1em;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      border-bottom: 2px solid #eee;
+      padding-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 1.8em;
+      color: #333;
+    }
+    .header h2 {
+      margin: 10px 0 0;
+      font-size: 1.2em;
+      color: #777;
+    }
+    .section {
+      margin-top: 30px;
+    }
+    .section h2 {
+      font-size: 1.4em;
+      margin-bottom: 20px;
+      color: #4285f4;
+    }
+    .question {
+      margin-bottom: 30px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #f2f2f2;
+    }
+    .question p {
+      margin: 0 0 10px 0;
+    }
+    .option {
+      margin: 5px 0;
+    }
+    .explanation {
+      margin-top: 10px;
+    }
+    button {
+      background: #4285f4;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover { background: #307cf1; }
+    /* Drag and drop */
+    .drag-drop-container {
+      display: flex;
+      gap: 10px;
+    }
+    .drag-column, .drop-column {
+      flex: 1;
+      background: #fff;
+      border: 1px dashed #ccc;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .draggable-item {
+      background: #e8f0fe;
+      border: 1px solid #c6dafc;
+      padding: 8px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      cursor: move;
+      text-align: center;
+    }
+    .dropzone {
+      min-height: 50px;
+      border: 1px dashed #aaa;
+      margin: 5px 0;
+      border-radius: 4px;
+      padding: 10px;
+      text-align: center;
+    }
+    .drop-label {
+      font-weight: bold;
+      color: #555;
+    }
+    /* Updated CSS for blanks in Part IV */
+    .blank-container {
+      display: inline;
+    }
+    .blank-container input.auto-expand, .blank-container span {
+      white-space: normal;
+      min-width: 60px;
+      height: 25px;
+      font-size: 18px;
+      vertical-align: baseline;
+      box-sizing: border-box;
+      overflow-wrap: break-word;
+    }
+    mjx-container[jax="CHTML"][display="true"] {
+      margin-top: 0 !important;
+      margin-bottom: -1.5em !important;
+    }
+    /* Media query cho smartphone */
+    @media only screen and (max-width: 600px) {
+      body { padding: 10px; font-size: 16px; }
+      .container { padding: 15px; }
+      .header h1 { font-size: 1.8em; }
+      .header h2 { font-size: 1.2em; }
+      .score-box { font-size: 1em; padding: 8px 12px; }
+    }
+  </style>
+
+</head>
+<body>
+  <div class='container'>
+    <div class='top-row'><div class='score-box' id='scoreDisplay'>Tổng số điểm:</div></div>
+    <div class='header'><h1>BÀI TẬP ĐỊNH LUẬT TUẦN HOÀN CÁC NGUYÊN TỐ HÓA HỌC VÀ Ý NGHĨA CỦA BẢNG TUẦN HOÀN CÁC NGUYÊN TỐ HÓA HỌC</h1><h2>(HÓA HỌC ABC)</h2></div>
+<div class='section' id='part1' data-parttype='1'>
+<h2>Phần 1: Trắc nghiệm nhiều lựa chọn (có một phương án đúng)</h2>
+<div class='question' id='part1_q1'>
+<p><strong>Câu 1:</strong><br><br>Theo Định luật tuần hoàn, tính chất của các nguyên tố và đơn chất, cũng như thành phần và tính chất của các hợp chất tạo nên từ các nguyên tố đó biến đổi tuần hoàn theo chiều tăng của yếu tố nào? </p>
+<div class='option'><label><input type='radio' name='part1_q1' value='A'> <strong>A.</strong>  Khối lượng nguyên tử. </label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='B'> <strong>B.</strong>  Bán kính nguyên tử. </label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='C'> <strong>C.</strong>  Điện tích hạt nhân nguyên tử. </label></div>
+<div class='option'><label><input type='radio' name='part1_q1' value='D'> <strong>D.</strong>  Độ âm điện.</label></div>
+<div class='explanation' id='part1_q1_result' data-answer='C' data-solution=''></div>
+</div>
+<div class='question' id='part1_q2'>
+<p><strong>Câu 2:</strong><br><br>Việc biết vị trí của một nguyên tố trong bảng tuần hoàn cho phép dự đoán điều gì? </p>
+<div class='option'><label><input type='radio' name='part1_q2' value='A'> <strong>A.</strong>  Chỉ cấu hình electron của nguyên tố đó. </label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='B'> <strong>B.</strong>  Chỉ tính chất hóa học cơ bản của nguyên tố đó. </label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='C'> <strong>C.</strong>  Cấu hình electron, và từ đó suy ra tính chất hóa học cơ bản của nguyên tố đó. </label></div>
+<div class='option'><label><input type='radio' name='part1_q2' value='D'> <strong>D.</strong>  Chỉ khối lượng nguyên tử của nguyên tố đó.</label></div>
+<div class='explanation' id='part1_q2_result' data-answer='C' data-solution=''></div>
+</div>
+<div class='question' id='part1_q3'>
+<p><strong>Câu 3:</strong><br><br>Nguyên tố X ở chu kì 3, nhóm IIA của bảng tuần hoàn. Cấu hình electron của nguyên tử nguyên tố X là: </p>
+<div class='option'><label><input type='radio' name='part1_q3' value='A'> <strong>A.</strong>  1s²2s²2p⁶. </label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='B'> <strong>B.</strong>  1s²2s²2p⁶3s¹. </label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='C'> <strong>C.</strong>  1s²2s²2p⁶3s².</label></div>
+<div class='option'><label><input type='radio' name='part1_q3' value='D'> <strong>D.</strong>  1s²2s²2p⁶3s²3p¹.</label></div>
+<div class='explanation' id='part1_q3_result' data-answer='C' data-solution='%3Cbr%3EX%20%E1%BB%9F%20chu%20k%C3%AC%203%2C%20nh%C3%B3m%20IIA%20%E2%86%92%20c%C3%B3%203%20l%E1%BB%9Bp%20electron%20v%C3%A0%20c%C3%B3%202%20electron%20h%C3%B3a%20tr%E1%BB%8B%20%E1%BB%9F%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng.%20C%E1%BA%A5u%20h%C3%ACnh%20l%C3%A0%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B2.'></div>
+</div>
+<div class='question' id='part1_q4'>
+<p><strong>Câu 4:</strong><br><br>Nguyên tố Sulfur (S) có số hiệu nguyên tử Z=16. Nó thuộc chu kì 3 và nhóm VIA. Số electron hóa trị của S là bao nhiêu? </p>
+<div class='option'><label><input type='radio' name='part1_q4' value='A'> <strong>A.</strong>  2. </label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='B'> <strong>B.</strong>  4. </label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='C'> <strong>C.</strong>  6. </label></div>
+<div class='option'><label><input type='radio' name='part1_q4' value='D'> <strong>D.</strong>  8.</label></div>
+<div class='explanation' id='part1_q4_result' data-answer='C' data-solution='%3Cbr%3E%C4%90%E1%BB%91i%20v%E1%BB%9Bi%20c%C3%A1c%20nguy%C3%AAn%20t%E1%BB%91%20nh%C3%B3m%20A%2C%20s%E1%BB%91%20electron%20h%C3%B3a%20tr%E1%BB%8B%20b%E1%BA%B1ng%20s%E1%BB%91%20electron%20l%E1%BB%9Bp%20ngo%C3%A0i%20v%C3%A0%20b%E1%BA%B1ng%20s%E1%BB%91%20th%E1%BB%A9%20t%E1%BB%B1%20c%E1%BB%A7a%20nh%C3%B3m%20l%C3%A0%206.'></div>
+</div>
+<div class='question' id='part1_q5'>
+<p><strong>Câu 5:</strong><br><br>Nguyên tố Na (Z=11) thuộc chu kì 3, nhóm IA. Đơn chất Na có tính chất gì? </p>
+<div class='option'><label><input type='radio' name='part1_q5' value='A'> <strong>A.</strong>  Tính kim loại yếu.</label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='B'> <strong>B.</strong>  Tính kim loại trung bình.</label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='C'> <strong>C.</strong>  Tính kim loại mạnh.</label></div>
+<div class='option'><label><input type='radio' name='part1_q5' value='D'> <strong>D.</strong>  Tính phi kim mạnh.</label></div>
+<div class='explanation' id='part1_q5_result' data-answer='C' data-solution='%3Cbr%3ENa%20n%E1%BA%B1m%20%E1%BB%9F%20nh%C3%B3m%20IA%20n%C3%AAn%20c%C3%B3%201e%20l%E1%BB%9Bp%20ngo%C3%A0i.%20C%C3%A1c%20nguy%C3%AAn%20t%E1%BB%91%20m%C3%A0%20nguy%C3%AAn%20t%E1%BB%AD%20c%C3%B3%201%2C%202%20ho%E1%BA%B7c%203e%20l%E1%BB%9Bp%20ngo%C3%A0i%20%28tr%E1%BB%AB%20H%2C%20He%20v%C3%A0%20B%29%20l%C3%A0%20kim%20lo%E1%BA%A1i%2C%20Na%20c%C3%B3%201e%20l%E1%BB%9Bp%20ngo%C3%A0i%20n%C3%AAn%20Na%20l%C3%A0%20m%E1%BB%99t%20kim%20lo%E1%BA%A1i.%20Na%20n%E1%BA%B1m%20%E1%BB%9F%20%C4%91%E1%BA%A7u%20chu%20k%C3%AC%203%20n%C3%AAn%20n%C3%B3%20c%C3%B3%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20m%E1%BA%A1nh.'></div>
+</div>
+<div class='question' id='part1_q6'>
+<p><strong>Câu 6:</strong><br><br>Nguyên tố X có số hiệu nguyên tử là 8. Cấu hình electron của nguyên tử nguyên tố X là: </p>
+<div class='option'><label><input type='radio' name='part1_q6' value='A'> <strong>A.</strong>  1s²2s²2p³. </label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='B'> <strong>B.</strong>  1s²2s²2p⁴. </label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='C'> <strong>C.</strong>  1s²2s²2p⁵. </label></div>
+<div class='option'><label><input type='radio' name='part1_q6' value='D'> <strong>D.</strong>  1s²2s²2p⁶.</label></div>
+<div class='explanation' id='part1_q6_result' data-answer='B' data-solution='%3Cbr%3ENguy%C3%AAn%20t%E1%BB%91%20X%20c%C3%B3%20s%E1%BB%91%20hi%E1%BB%87u%20nguy%C3%AAn%20t%E1%BB%AD%20l%C3%A0%208%2C%20n%C3%AAn%20c%C3%B3%208%20electron.%20C%E1%BA%A5u%20h%C3%ACnh%20electron%20l%C3%A0%201s%C2%B22s%C2%B22p%E2%81%B4.'></div>
+</div>
+<div class='question' id='part1_q7'>
+<p><strong>Câu 7:</strong><br><br>Một mol hydroxide của nguyên tố X (thuộc nhóm A) là một base mạnh và tác dụng vừa đủ với 3 mol HCl. Nhóm của nguyên tố X là: </p>
+<div class='option'><label><input type='radio' name='part1_q7' value='A'> <strong>A.</strong>  Nhóm IA. </label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='B'> <strong>B.</strong>  Nhóm IIA. </label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='C'> <strong>C.</strong>  Nhóm IIIA. </label></div>
+<div class='option'><label><input type='radio' name='part1_q7' value='D'> <strong>D.</strong>  Nhóm IVA.</label></div>
+<div class='explanation' id='part1_q7_result' data-answer='C' data-solution='%3Cbr%3E%C4%90%E1%BA%B7t%20c%C3%B4ng%20th%E1%BB%A9c%20hydroxide%20l%C3%A0%20X%28OH%29n.%3Cbr%3EPTHH%3A%20X%28OH%29%3Csub%3En%3C%2Fsub%3E%20%2B%20nHCl%20%E2%86%92%20XCl%3Csub%3En%3C%2Fsub%3E%20%2B%20nH%3Csub%3E2%3C%2Fsub%3EO%3Cbr%3E1%20mol%20hydroxide%20X%28OH%29%3Csub%3En%3C%2Fsub%3E%20t%C3%A1c%20d%E1%BB%A5ng%20v%E1%BB%9Bi%203%20mol%20HCl%2C%20suy%20ra%20n%3D3.%20V%E1%BA%ADy%20X%20c%C3%B3%20h%C3%B3a%20tr%E1%BB%8B%20III.%20V%C3%AC%20X%20thu%E1%BB%99c%20nh%C3%B3m%20A%20n%C3%AAn%20X%20thu%E1%BB%99c%20nh%C3%B3m%20IIIA.'></div>
+</div>
+<div class='question' id='part1_q8'>
+<p><strong>Câu 8:</strong><br><br>Nguyên tố X có phân lớp electron ngoài cùng là 3p⁴. Công thức oxide ứng với hóa trị cao nhất của X là: </p>
+<div class='option'><label><input type='radio' name='part1_q8' value='A'> <strong>A.</strong>  X₂O₃. </label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='B'> <strong>B.</strong>  XO₂. </label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='C'> <strong>C.</strong>  X₂O₅. </label></div>
+<div class='option'><label><input type='radio' name='part1_q8' value='D'> <strong>D.</strong>  XO₃.</label></div>
+<div class='explanation' id='part1_q8_result' data-answer='D' data-solution='%3Cbr%3ET%E1%BB%AB%20ph%C3%A2n%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%2C%20suy%20ra%20nguy%C3%AAn%20t%E1%BB%91%20X%20c%C3%B3%20c%E1%BA%A5u%20h%C3%ACnh%20electron%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%203s%C2%B23p%E2%81%B4.%20Electron%20c%C3%B3%20m%E1%BB%A9c%20n%C4%83ng%20l%C6%B0%E1%BB%A3ng%20cao%20nh%E1%BA%A5t%20n%E1%BA%B1m%20tr%C3%AAn%20ph%C3%A2n%20l%E1%BB%9Bp%20p%2C%20l%E1%BA%A1i%20c%C3%B3%206e%20l%E1%BB%9Bp%20ngo%C3%A0i%20n%C3%AAn%20X%20thu%E1%BB%99c%20nh%C3%B3m%20VIA.%20H%C3%B3a%20tr%E1%BB%8B%20cao%20nh%E1%BA%A5t%20c%E1%BB%A7a%20X%20v%E1%BB%9Bi%20oxygen%20b%E1%BA%B1ng%20s%E1%BB%91%20th%E1%BB%A9%20t%E1%BB%B1%20nh%C3%B3m%20l%C3%A0%20VI.%20C%C3%B4ng%20th%E1%BB%A9c%20oxide%20cao%20nh%E1%BA%A5t%20l%C3%A0%20XO%E2%82%83.'></div>
+</div>
+<div class='question' id='part1_q9'>
+<p><strong>Câu 9:</strong><br><br>Potassium hydroxide (KOH) là một hợp chất quan trọng trong ngành công nghiệp. KOH được mô tả là chất có tính chất gì? </p>
+<div class='option'><label><input type='radio' name='part1_q9' value='A'> <strong>A.</strong>  Acid mạnh. </label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='B'> <strong>B.</strong>  Acid yếu. </label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='C'> <strong>C.</strong>  Base mạnh. </label></div>
+<div class='option'><label><input type='radio' name='part1_q9' value='D'> <strong>D.</strong>  Base yếu.</label></div>
+<div class='explanation' id='part1_q9_result' data-answer='C' data-solution='%3Cbr%3EPotassium%20%28K%29%20l%C3%A0%20nguy%C3%AAn%20t%E1%BB%91%20n%E1%BA%B1m%20%E1%BB%9F%20chu%20k%C3%AC%204%2C%20nh%C3%B3m%20IA%2C%20ngay%20ph%C3%ADa%20d%C6%B0%E1%BB%9Bi%20c%E1%BB%A7a%20Na.%20Trong%20m%E1%BB%99t%20nh%C3%B3m%20A%2C%20%C4%91i%20t%E1%BB%AB%20tr%C3%AAn%20xu%E1%BB%91ng%20d%C6%B0%E1%BB%9Bi%2C%20t%C3%ADnh%20base%20c%E1%BB%A7a%20c%C3%A1c%20hydroxide%20t%C4%83ng%20d%E1%BA%A7n%2C%20do%20%C4%91%C3%B3%20KOH%20c%C3%B3%20t%C3%ADnh%20base%20m%E1%BA%A1nh%2C%20m%E1%BA%A1nh%20h%C6%A1n%20c%E1%BA%A3%20NaOH.%3Cbr%3E'></div>
+</div>
+</div>
+<div class='section' id='part2' data-parttype='2'>
+<h2>Phần 2: Trắc nghiệm nhiều lựa chọn (có thể có nhiều đáp án đúng)</h2>
+<div class='question' id='part2_q1'>
+<p><strong>Câu 1:</strong><br><br>Nguyên tố X có cấu hình electron 1s²2s²2p⁶3s¹; Y có 1s²2s²2p⁶3s²; và Z có 1s²2s²2p⁶3s²3p¹. Phát biểu nào sau đây đúng? </p>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='A'> <strong>A.</strong>  X, Y, Z đều thuộc chu kì 3. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='B'> <strong>B.</strong>  Tính kim loại tăng dần theo thứ tự Z, Y, X. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='C'> <strong>C.</strong>  X thuộc nhóm IA. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q1' value='D'> <strong>D.</strong>  Y và Z đều thuộc nhóm IIIA.</label></div>
+<div class='explanation' id='part2_q1_result' data-answer='A,B,C' data-solution='%3Cbr%3E-%20X%2C%20Y%2C%20Z%20%C4%91%E1%BB%81u%20c%C3%B3%203%20l%E1%BB%9Bp%20electron%20n%C3%AAn%20%C4%91%E1%BB%81u%20thu%E1%BB%99c%20chu%20k%C3%AC%203.%3Cbr%3E-%20X%20c%C3%B3%201e%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%20n%C3%AAn%20thu%E1%BB%99c%20nh%C3%B3m%20IA.%20%3Cbr%3E-%20Y%20c%C3%B3%202e%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%20n%C3%AAn%20thu%E1%BB%99c%20nh%C3%B3m%20IIA.%20%3Cbr%3E-%20Z%20c%C3%B3%203e%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%20n%C3%AAn%20thu%E1%BB%99c%20nh%C3%B3m%20IIIA.%20%3Cbr%3ETrong%20c%C3%B9ng%20chu%20k%C3%AC%2C%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20gi%E1%BA%A3m%20d%E1%BA%A7n%20t%E1%BB%AB%20tr%C3%A1i%20sang%20ph%E1%BA%A3i%2C%20n%C3%AAn%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20t%C4%83ng%20d%E1%BA%A7n%20theo%20th%E1%BB%A9%20t%E1%BB%B1%20Z%20%3C%20Y%20%3C%20X.%20%3Cbr%3EK%E1%BA%BFt%20lu%E1%BA%ADn%3A%20A%2C%20B%2C%20C%20%C4%91%C3%BAng%3B%20D%20sai'></div>
+</div>
+<div class='question' id='part2_q2'>
+<p><strong>Câu 2:</strong><br><br>Phát biểu nào sau đây đúng về nguyên tử Iron (Fe, Z=26)? </p>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='A'> <strong>A.</strong>  Fe thuộc chu kì 4. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='B'> <strong>B.</strong>  Fe thuộc nhóm VIIIA. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='C'> <strong>C.</strong>  Fe có 26 electron. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q2' value='D'> <strong>D.</strong>  Fe có cấu hình electron [Ar]3d⁶4s².</label></div>
+<div class='explanation' id='part2_q2_result' data-answer='A,C,D' data-solution='%3Cbr%3ES%E1%BB%91%20hi%E1%BB%87u%20nguy%C3%AAn%20t%E1%BB%AD%20l%C3%A0%2026%2C%20n%C3%AAn%20c%C3%B3%2026%20electron.%20%3Cbr%3EC%E1%BA%A5u%20h%C3%ACnh%20e%20c%E1%BB%A7a%20Fe%20l%C3%A0%20%5BAr%5D3d%E2%81%B64s%C2%B2.%3Cbr%3EFe%20c%C3%B3%204%20l%E1%BB%9Bp%20n%C3%AAn%20n%E1%BA%B1m%20%E1%BB%9F%20chu%20k%C3%AC%204.%3Cbr%3EElectron%20c%C3%B3%20m%E1%BB%A9c%20n%C4%83ng%20l%C6%B0%E1%BB%A3ng%20cao%20nh%E1%BA%A5t%20n%E1%BA%B1m%20tr%C3%AAn%20ph%C3%A2n%20l%E1%BB%9Bp%20d%20n%C3%AAn%20Fe%20thu%E1%BB%99c%20nh%C3%B3m%20B.%20T%E1%BB%95ng%20s%E1%BB%91%20e%20l%E1%BB%9Bp%20ngo%C3%A0i%20v%C3%A0%20ph%C3%A2n%20l%E1%BB%9Bp%20s%C3%A1t%20ngo%C3%A0i%20l%C3%A0%208%20n%C3%AAn%20Fe%20thu%E1%BB%99c%20nh%C3%B3m%20VIIIB.%3Cbr%3EK%E1%BA%BFt%20lu%E1%BA%ADn%3A%20A%2C%20C%2C%20D%20%C4%91%C3%BAng%20%3B%20B%20sai.'></div>
+</div>
+<div class='question' id='part2_q3'>
+<p><strong>Câu 3:</strong><br><br>Nguyên tố Phosphorus (P) có số hiệu nguyên tử là 15. Phát biểu nào sau đây đúng về Phosphorus? </p>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='A'> <strong>A.</strong>  P là kim loại. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='B'> <strong>B.</strong>  P có 5 electron lớp ngoài cùng. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='C'> <strong>C.</strong>  Công thức oxide cao nhất của P là P₂O₅. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q3' value='D'> <strong>D.</strong>  Hợp chất khí với hydrogen của P là PH₃.</label></div>
+<div class='explanation' id='part2_q3_result' data-answer='B,C,D' data-solution='%3Cbr%3EP%20c%C3%B3%20s%E1%BB%91%20hi%E1%BB%87u%20nguy%C3%AAn%20t%E1%BB%AD%2015%20%E2%86%92%20c%E1%BA%A5u%20h%C3%ACnh%20e%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%C2%B3.%3Cbr%3EP%20c%C3%B3%205e%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%20n%C3%AAn%20P%20thu%E1%BB%99c%20nh%C3%B3m%20VA.%20H%C3%B3a%20tr%E1%BB%8B%20cao%20nh%E1%BA%A5t%20v%E1%BB%9Bi%20oxygen%20l%C3%A0%20V%2C%20suy%20ra%20oxide%20cao%20nh%E1%BA%A5t%20l%C3%A0%20P%E2%82%82O%E2%82%85.%3Cbr%3ET%E1%BB%95ng%20h%C3%B3a%20tr%E1%BB%8B%20trong%20oxide%20cao%20nh%E1%BA%A5t%20v%C3%A0%20h%E1%BB%A3p%20ch%E1%BA%A5t%20kh%C3%AD%20v%E1%BB%9Bi%20hydrogen%20c%E1%BB%A7a%20m%E1%BB%99t%20nguy%C3%AAn%20t%E1%BB%91%20b%E1%BA%B1ng%20t%C3%A1m%2C%20n%C3%AAn%20h%C3%B3a%20tr%E1%BB%8B%20trong%20h%E1%BB%A3p%20ch%E1%BA%A5t%20kh%C3%AD%20c%E1%BB%A7a%20P%20v%E1%BB%9Bi%20H%20l%C3%A0%20III%2C%20suy%20ra%20h%E1%BB%A3p%20ch%E1%BA%A5t%20kh%C3%AD%20v%E1%BB%9Bi%20hydrogen%20l%C3%A0%20PH%E2%82%83.%3Cbr%3EH%E1%BB%A3p%20ch%E1%BA%A5t%20kh%C3%AD%20v%E1%BB%9Bi%20hydrogen%20l%C3%A0%20PH%E2%82%83%29.'></div>
+</div>
+<div class='question' id='part2_q4'>
+<p><strong>Câu 4:</strong><br><br>Anion X²⁻ có cấu hình electron [Ne]3s²3p⁶. Phát biểu nào sau đây đúng về nguyên tố X? </p>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='A'> <strong>A.</strong>  X là phi kim. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='B'> <strong>B.</strong>  X ở thể khí. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='C'> <strong>C.</strong>  X thuộc chu kì 3.</label></div>
+<div class='option'><label><input type='checkbox' name='part2_q4' value='D'> <strong>D.</strong>  X thuộc nhóm VIA.</label></div>
+<div class='explanation' id='part2_q4_result' data-answer='A,C,D' data-solution='%3Cbr%3EAnion%20X%C2%B2%E2%81%BB%20%C4%91%C6%B0%E1%BB%A3c%20t%E1%BA%A1o%20ra%20khi%20X%20nh%E1%BA%ADn%20th%C3%AAm%202e.%20Anion%20X%C2%B2%E2%81%BB%20c%C3%B3%20c%E1%BA%A5u%20h%C3%ACnh%20%5BNe%5D3s%C2%B23p%E2%81%B6%2C%20suy%20ra%20nguy%C3%AAn%20t%E1%BB%AD%20X%20c%C3%B3%20c%E1%BA%A5u%20h%C3%ACnh%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%E2%81%B4.%20%3Cbr%3EX%20c%C3%B3%206e%20l%E1%BB%9Bp%20ngo%C3%A0i%20c%C3%B9ng%2C%20n%C3%AAn%20X%20thu%E1%BB%99c%20nh%C3%B3m%20VIA%20v%C3%A0%20l%C3%A0%20m%E1%BB%99t%20phi%20kim.%3Cbr%3EX%20c%C3%B3%203%20l%E1%BB%9Bp%20electron%20n%C3%AAn%20X%20thu%E1%BB%99c%20chu%20k%C3%AC%203.%20%3Cbr%3ET%E1%BB%AB%20v%E1%BB%8B%20tr%C3%AD%20trong%20b%E1%BA%A3ng%20tu%E1%BA%A7n%20ho%C3%A0n%2C%20suy%20ra%20X%20l%C3%A0%20Sulfur%20%28S%29.%20%E1%BB%9E%20nhi%E1%BB%87t%20%C4%91%E1%BB%99%20ph%C3%B2ng%2C%20S%20l%C3%A0%20ch%E1%BA%A5t%20r%E1%BA%AFn%20m%C3%A0u%20v%C3%A0ng.%3Cbr%3EK%E1%BA%BFt%20lu%E1%BA%ADn%3A%20A%2C%20C%2C%20D%20%C4%91%C3%BAng%3B%20B%20sai.'></div>
+</div>
+<div class='question' id='part2_q5'>
+<p><strong>Câu 5:</strong><br><br>Cation R³⁺ có cấu hình electron ở phân lớp ngoài cùng là 2p⁶. Phát biểu nào sau đây đúng về nguyên tố R? </p>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='A'> <strong>A.</strong>  R là kim loại. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='B'> <strong>B.</strong>  R thuộc nhóm IIIA. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='C'> <strong>C.</strong>  Công thức oxide ứng với hóa trị cao nhất của R là R₂O₃. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q5' value='D'> <strong>D.</strong>  Hydroxide tương ứng của R₂O₃ là R(OH)₃.</label></div>
+<div class='explanation' id='part2_q5_result' data-answer='A,B,C,D' data-solution='%3Cbr%3ECation%20R%C2%B3%E2%81%BA%20%C4%91%C6%B0%E1%BB%A3c%20ta%20ra%20do%20R%20%C4%91%C3%A3%20nh%C6%B0%E1%BB%9Dng%20%C4%91i%203e.%20%3Cbr%3ECation%20R%C2%B3%E2%81%BA%20c%C3%B3%20c%E1%BA%A5u%20h%C3%ACnh%20electron%202p%E2%81%B6%2C%20suy%20ra%20nguy%C3%AAn%20t%E1%BB%AD%20R%20c%C3%B3%20c%E1%BA%A5u%20h%C3%ACnh%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%C2%B9.%3Cbr%3ER%20c%C3%B3%203e%20l%E1%BB%9Bp%20ngo%C3%A0i%20n%C3%AAn%20R%20l%C3%A0%20kim%20lo%E1%BA%A1i.%3Cbr%3EElectron%20c%C3%B3%20m%E1%BB%A9c%20n%C4%83ng%20l%C6%B0%E1%BB%A3ng%20cao%20nh%E1%BA%A5t%20n%E1%BA%B1m%20tr%C3%AAn%20ph%C3%A2n%20l%E1%BB%9Bp%20p%2C%20n%C3%AAn%20R%20thu%E1%BB%99c%20nh%C3%B3m%20A.%20C%C3%B3%203e%20l%E1%BB%9Bp%20ngo%C3%A0i%20n%C3%AAn%20R%20thu%E1%BB%99c%20nh%C3%B3m%20IIIA.%3Cbr%3ER%20thu%E1%BB%99c%20nh%C3%B3m%20IIIA%20n%C3%AAn%20h%C3%B3a%20tr%E1%BB%8B%20cao%20nh%E1%BA%A5t%20v%E1%BB%9Bi%20oxygen%20l%C3%A0%20III%2C%20suy%20ra%20oxide%20cao%20nh%E1%BA%A5t%20v%C3%A0%20hydroxide%20t%C6%B0%C6%A1ng%20%E1%BB%A9ng%20l%C3%A0%20R%E2%82%82O%E2%82%83%20v%C3%A0%20R%28OH%29%E2%82%83.%3Cbr%3EK%E1%BA%BFt%20lu%E1%BA%ADn%3A%20A%2C%20B%2C%20C%2C%20D%20%C4%91%C3%BAng.'></div>
+</div>
+<div class='question' id='part2_q6'>
+<p><strong>Câu 6:</strong><br><br>Nguyên tố X có cấu hình electron 1s²2s²2p⁶3s²3p³. Phát biểu nào sau đây đúng về X? </p>
+<div class='option'><label><input type='checkbox' name='part2_q6' value='A'> <strong>A.</strong>  X có 5 electron lớp ngoài cùng. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q6' value='B'> <strong>B.</strong>  X thuộc chu kì 3. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q6' value='C'> <strong>C.</strong>  X thuộc nhóm VA. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q6' value='D'> <strong>D.</strong>  X là một kim loại.</label></div>
+<div class='explanation' id='part2_q6_result' data-answer='A,B,C' data-solution=''></div>
+</div>
+<div class='question' id='part2_q7'>
+<p><strong>Câu 7:</strong><br><br>Magnesium (Mg) có cấu hình electron là 1s²2s²2p⁶3s². Phát biểu nào sau đây đúng về Magnesium? </p>
+<div class='option'><label><input type='checkbox' name='part2_q7' value='A'> <strong>A.</strong>  Mg là kim loại kiềm thổ. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q7' value='B'> <strong>B.</strong>  Bán kính nguyên tử của Mg lớn hơn Al. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q7' value='C'> <strong>C.</strong>  Hydroxide của Mg là Mg(OH)₂. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q7' value='D'> <strong>D.</strong>  Mg có tính base mạnh hơn Al(OH)₃.</label></div>
+<div class='explanation' id='part2_q7_result' data-answer='A,B,C' data-solution='%3Cbr%3EMg%20c%C3%B3%20hai%20l%E1%BB%9Bp%20electron%20v%C3%A0%20c%C3%B3%202e%20l%E1%BB%9Bp%20ngo%C3%A0i%20n%C3%AAn%20Mg%20thu%E1%BB%99c%20chu%20k%C3%AC%202%2C%20nh%C3%B3m%20IIA.%3Cbr%3ENh%C3%B3m%20IIA%20c%C3%B3%20t%C3%AAn%20l%C3%A0%20nh%C3%B3m%20kim%20lo%E1%BA%A1i%20ki%E1%BB%81m%20th%E1%BB%95%20n%C3%AAn%20Mg%20l%C3%A0%20kim%20lo%E1%BA%A1i%20ki%E1%BB%81m%20th%E1%BB%95.%3Cbr%3EDo%20c%C3%B3%20h%C3%B3a%20tr%E1%BB%8B%20II%20n%C3%AAn%20hydroxide%20c%E1%BB%A7a%20Mg%20l%C3%A0%20Mg%28OH%29%E2%82%82.%3Cbr%3EAl%20%28Z%3D13%29%20c%C3%B9ng%20chu%20k%C3%AC%20v%C3%A0%20n%E1%BA%B1m%20sau%20Mg%20n%C3%AAn%20Al%20c%C3%B3%20b%C3%A1n%20k%C3%ADnh%20nguy%C3%AAn%20t%E1%BB%AD%20nh%E1%BB%8F%20h%C6%A1n%20Mg.%3Cbr%3EK%E1%BA%BFt%20lu%E1%BA%ADn%3A%20A%2C%20B%2C%20C%20%C4%91%C3%BAng%3B%20D%20sai%20do%20Mg%20kh%C3%B4ng%20c%C3%B3%20t%C3%ADnh%20base.'></div>
+</div>
+<div class='question' id='part2_q8'>
+<p><strong>Câu 8:</strong><br><br>Nguyên tố M là kim loại thuộc nhóm IIA. 1,2g M tác dụng với dung dịch HCl thu được 0,7437 L khí H₂ (ở 25 °C và 1 bar). Phát biểu nào sau đây đúng?</p>
+<div class='option'><label><input type='checkbox' name='part2_q8' value='A'> <strong>A.</strong>  M là Magnesium. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q8' value='B'> <strong>B.</strong>  M là Calcium. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q8' value='C'> <strong>C.</strong>  Tính kim loại của M mạnh hơn K. </label></div>
+<div class='option'><label><input type='checkbox' name='part2_q8' value='D'> <strong>D.</strong>  Tính kim loại của M mạnh hơn Mg. </label></div>
+<div class='explanation' id='part2_q8_result' data-answer='B,D' data-solution='%20%3Cbr%3EM%20l%C3%A0%20kim%20lo%E1%BA%A1i%20thu%E1%BB%99c%20nh%C3%B3m%20IIA%20n%C3%AAn%20c%C3%B3%20h%C3%B3a%20tr%E1%BB%8B%20II.%3Cbr%3EPTHH%3A%20M%20%2B%202HCl%20%E2%86%92%20MCl%E2%82%82%20%2B%20H%E2%82%82.%20%3Cbr%3E%24%7B%7Bn%7D_%7B%7B%7BH%7D_%7B2%7D%7D%7D%7D%3D%5Cfrac%7BPV%7D%7BRT%7D%3D%5Cfrac%7B1%5Ctimes%200%2C7437%7D%7B0%2C0831%5Ctimes%20298%7D%5Capprox%200%2C03%24%3Cbr%3E%24%7B%7BM%7D_%7BM%7D%7D%3D%5Cfrac%7Bm%7D%7Bn%7D%3D%5Cfrac%7B1%2C2%7D%7B0%2C03%7D%3D40%24%3Cbr%3EKh%E1%BB%91i%20l%C6%B0%E1%BB%A3ng%20mol%2040%20n%C3%AAn%20M%20l%C3%A0%20Calcium%20%28Ca%29.%3Cbr%3ETrong%20m%E1%BB%99t%20chu%20k%C3%AC%2C%20theo%20chi%E1%BB%81u%20t%E1%BB%AB%20tr%C3%A1i%20sang%20ph%E1%BA%A3i%2C%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20gi%E1%BA%A3m%20d%E1%BA%A7n%20n%C3%AAn%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20c%E1%BB%A7a%20K%20%3E%20Ca.%3Cbr%3ETrong%20m%E1%BB%99t%20nh%C3%B3m%20A%2C%20theo%20chi%E1%BB%81u%20t%E1%BB%AB%20tr%C3%AAn%20xu%E1%BB%91ng%20d%C6%B0%E1%BB%9Bi%2C%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20t%C4%83ng%20d%E1%BA%A7n%20n%C3%AAn%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20c%E1%BB%A7a%20Ca%20%3E%20Mg.%3Cbr%3EK%E1%BA%BFt%20lu%E1%BA%ADn%3A%20B%2C%20D%20%C4%91%C3%BAng%3B%20A%2C%20C%20sai.%3Cbr%3E%3Cbr%3E'></div>
+</div>
+</div>
+<div class='section' id='part3' data-parttype='3'>
+<h2>Phần 3: Trắc nghiệm trả lời ngắn</h2>
+<div class='question' id='part3_q1'>
+<p><strong>Câu 1:</strong><br><br>Số electron lớp ngoài cùng của nguyên tố X có cấu hình 1s²2s²2p⁶3s²3p³ là bao nhiêu?</p>
+<div>Đáp án của bạn: <input type='text' id='part3_q1_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q1_result' data-answer=' 5' data-solution=''></div>
+</div>
+<div class='question' id='part3_q2'>
+<p><strong>Câu 2:</strong><br><br>Nguyên tố A có tổng số hạt là 108, số hạt không mang điện là 24. Số proton của nguyên tử A là bao nhiêu?</p>
+<div>Đáp án của bạn: <input type='text' id='part3_q2_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q2_result' data-answer=' 42' data-solution='%3Cbr%3ET%E1%BB%95ng%20s%E1%BB%91%20h%E1%BA%A1t%20l%C3%A0%20108%20%E2%86%92%20p%20%2B%20n%20%2B%20e%20%3D%20108%2C%20hay%202p%20%2B%20n%20%3D%20108%3Cbr%3ES%E1%BB%91%20h%E1%BA%A1t%20kh%C3%B4ng%20mang%20%C4%91i%E1%BB%87n%20l%C3%A0%2024%20%E2%86%92%202p%20%2B%2024%20%3D%20108%2C%20gi%E1%BA%A3i%20%C4%91%C6%B0%E1%BB%A3c%20p%20%3D%2042%3Cbr%3E'></div>
+</div>
+<div class='question' id='part3_q3'>
+<p><strong>Câu 3:</strong><br><br>Một oxide cao nhất của nguyên tố R thuộc nhóm VIA chứa 60% oxygen về khối lượng. Khối lượng mol của nguyên tố R là bao nhiêu gam/mol? </p>
+<div>Đáp án của bạn: <input type='text' id='part3_q3_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q3_result' data-answer=' 32' data-solution='%3Cbr%3ER%20thu%E1%BB%99c%20nh%C3%B3m%20VIA%20n%C3%AAn%20oxide%20cao%20nh%E1%BA%A5t%20l%C3%A0%20RO%E2%82%83.%3Cbr%3ETrong%20RO%E2%82%83%2C%20O%20chi%E1%BA%BFm%2060%25%20v%E1%BB%81%20kh%E1%BB%91i%20l%C6%B0%E1%BB%A3ng%2C%20n%C3%AAn%20ta%20c%C3%B3%3A%3Cbr%3E%24%5Cfrac%7B3%5Ctimes%2016%5Ctimes%20100%7D%7BR%2B3%5Ctimes%2016%7D%3D60%24%3Cbr%3EGi%E1%BA%A3i%20ra%20%C4%91%C6%B0%E1%BB%A3c%20R%3D32'></div>
+</div>
+<div class='question' id='part3_q4'>
+<p><strong>Câu 4:</strong><br><br>Oxide cao nhất của R là RO₂. Trong hợp chất khí với hydrogen, R chiếm 87,54% về khối lượng. Hãy cho biết kí hiệu của nguyên tố R. (lấy khối lượng của H là 1)</p>
+<div>Đáp án của bạn: <input type='text' id='part3_q4_input' class='auto-expand' style='width:60px; height:25px; font-size:18px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></div>
+<div class='explanation' id='part3_q4_result' data-answer=' Si' data-solution='%3Cbr%3ETa%20bi%E1%BA%BFt%2C%20t%E1%BB%95ng%20h%C3%B3a%20tr%E1%BB%8B%20trong%20oxide%20cao%20nh%E1%BA%A5t%20v%C3%A0%20trong%20h%E1%BB%A3p%20ch%E1%BA%A5t%20kh%C3%AD%20v%E1%BB%9Bi%20hydrogen%20c%E1%BB%A7a%20m%E1%BB%99t%20nguy%C3%AAn%20t%E1%BB%91%20nh%C3%B3m%20A%20lu%C3%B4n%20l%C3%A0%20VIII.%3Cbr%3ER%20c%C3%B3%20h%C3%B3a%20tr%E1%BB%8B%20IV%20trong%20oxide%20cao%20nh%E1%BA%A5t%2C%20n%C3%AAn%20h%C3%B3a%20tr%E1%BB%8B%20trong%20h%E1%BB%A3p%20ch%E1%BA%A5t%20kh%C3%AD%20v%E1%BB%9Bi%20hydrogen%20l%C3%A0%20IV.%20Suy%20ra%2C%20c%C3%B4ng%20th%E1%BB%A9c%20h%E1%BB%A3p%20ch%E1%BA%A5t%20kh%C3%AD%20v%E1%BB%9Bi%20hydrogen%20c%E1%BB%A7a%20R%20l%C3%A0%20RH%E2%82%84.%3Cbr%3ETrong%20RH%E2%82%84%2C%20R%20chi%E1%BA%BFm%2087%2C54%25%20v%E1%BB%81%20kh%E1%BB%91i%20l%C6%B0%E1%BB%A3ng%2C%20n%C3%AAn%20ta%20c%C3%B3%3A%3Cbr%3E%24%5Cfrac%7BR%5Ctimes%20100%7D%7BR%2B4%5Ctimes%201%7D%3D87%2C54%24%3Cbr%3EGi%E1%BA%A3i%20ra%20%C4%91%C6%B0%E1%BB%A3c%20R%20%E2%89%88%2028%2C1.%20V%E1%BA%ADt%20R%20l%C3%A0%20Si%20%28Silicon%29.%3Cbr%3E'></div>
+</div>
+</div>
+<div class='section' id='part4' data-parttype='4'>
+<h2>Phần 4: Trắc nghiệm điền khuyết</h2>
+<div class='question' id='part4_q1'>
+<p><strong>Câu 1:</strong><br><br>Công thức oxide ứng với hóa trị cao nhất của Sulfur là <span class='blank-container'><input type='text' id='part4_q1_blank1' data-answer=' SO3' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span>.</p>
+<div class='explanation' id='part4_q1_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q2'>
+<p><strong>Câu 2:</strong><br><br>Trong bảng tuần hoàn, tính chất của các đơn chất và hợp chất tạo nên từ các nguyên tố biến đổi tuần hoàn theo chiều tăng của <span class='blank-container'><input type='text' id='part4_q2_blank1' data-answer=' điện tích hạt nhân|| điện tích hạt nhân nguyên tử' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span>.</p>
+<div class='explanation' id='part4_q2_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q3'>
+<p><strong>Câu 3:</strong><br><br>Nguyên tố Sulfur (S, Z=16) có <span class='blank-container'><input type='text' id='part4_q3_blank1' data-answer=' 3|| ba' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> lớp electron và <span class='blank-container'><input type='text' id='part4_q3_blank2' data-answer=' 6|| sáu' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> electron ở lớp ngoài cùng.</p>
+<div class='explanation' id='part4_q3_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q4'>
+<p><strong>Câu 4:</strong><br><br>Trong cùng một chu kì, theo chiều tăng của điện tích hạt nhân, độ âm điện của các nguyên tố <span class='blank-container'><input type='text' id='part4_q4_blank1' data-answer=' tăng dần|| tăng' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span>.</p>
+<div class='explanation' id='part4_q4_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q5'>
+<p><strong>Câu 5:</strong><br><br>Oxide cao nhất của phosphorus (P<sub>2</sub>O<sub>5</sub>) là một <span class='blank-container'><input type='text' id='part4_q5_blank1' data-answer=' acidic' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> oxide, và hydroxide tương ứng (H<sub>3</sub>PO<sub>4</sub>) là một acid <span class='blank-container'><input type='text' id='part4_q5_blank2' data-answer=' trung bình' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span>.</p>
+<div class='explanation' id='part4_q5_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q6'>
+<p><strong>Câu 6:</strong><br><br>Na<sub>2</sub>O là một <span class='blank-container'><input type='text' id='part4_q6_blank1' data-answer=' basic oxide' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span>, nó có tính <span class='blank-container'><input type='text' id='part4_q6_blank2' data-answer=' base' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span>.</p>
+<div class='explanation' id='part4_q6_result' data-solution=''></div>
+</div>
+<div class='question' id='part4_q7'>
+<p><strong>Câu 7:</strong><br><br>Cho các nguyên tố X (Z=13), Y (Z=20) và M (Z=14). Không dùng bảng hệ thống tuần hoàn các nguyên tố hóa học, không dùng bảng số liệu về bán kính nguyên tử, hãy sắp xếp các nguyên tố trên theo chiều giảm dần tính kim loại.<br>Sắp xếp của bạn: <span class='blank-container'><input type='text' id='part4_q7_blank1' data-answer=' Y' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> > <span class='blank-container'><input type='text' id='part4_q7_blank2' data-answer=' X' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span> > <span class='blank-container'><input type='text' id='part4_q7_blank3' data-answer=' M' class='auto-expand' style='width:60px;' oninput="var canvas=document.createElement('canvas');var context=canvas.getContext('2d');context.font=window.getComputedStyle(this).font;var textWidth=context.measureText(this.value).width;this.style.width=Math.max(60, textWidth+10)+'px';"></span></p>
+<div class='explanation' id='part4_q7_result' data-solution='Vi%E1%BA%BFt%20c%E1%BA%A5u%20h%C3%ACnh%20electron%20nguy%C3%AAn%20t%E1%BB%AD%20c%C3%A1c%20nguy%C3%AAn%20t%E1%BB%91%2C%20t%E1%BB%AB%20%C4%91%C3%B3%20suy%20ra%20v%E1%BB%8B%20tr%C3%AD%20trong%20b%E1%BA%A3ng%20tu%E1%BA%A7n%20ho%C3%A0n.%3Cbr%3EX%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%C2%B9%20%E2%86%92%20Chu%20k%C3%AC%203%2C%20nh%C3%B3m%20IIIA.%3Cbr%3EY%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%E2%81%B64s%C2%B2%20%E2%86%92%20Chu%20k%C3%AC%204%2C%20nh%C3%B3m%20IIA%3Cbr%3EM%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%C2%B2%20%E2%86%92%20Chu%20k%C3%AC%203%2C%20nh%C3%B3m%20IVA%3Cbr%3E%C4%90%E1%BA%B7t%20X%2C%20Y%20v%C3%A0%20M%20v%C3%A0o%20khung%20b%E1%BA%A3ng%20tu%E1%BA%A7n%20ho%C3%A0n%2C%20k%C3%A8m%20theo%20m%E1%BB%99t%20nguy%C3%AAn%20t%E1%BB%91%20ch%C6%B0a%20bi%E1%BA%BFt%20%28%3F%29%20l%C3%A0m%20nguy%C3%AAn%20t%E1%BB%91%20b%E1%BA%AFc%20c%E1%BA%A7u%20t%E1%BA%A1i%20%C4%91i%E1%BB%83m%20giao%20gi%E1%BB%AFa%20h%C3%A0ng%20v%C3%A0%20c%E1%BB%99t.%3Cbr%3E%3Cimg%20src%3D%22Cau7_Phan_IV.png%22%20alt%3D%22Image%22%20style%3D%22max-width%3A100%25%3B%22%3E%3Cbr%3ETrong%20m%E1%BB%99t%20chu%20k%C3%AC%2C%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20gi%E1%BA%A3m%20d%E1%BA%A7n%20theo%20chi%E1%BB%81u%20t%E1%BB%AB%20tr%C3%A1i%20sang%20ph%E1%BA%A3i%20n%C3%AAn%3A%20%3F%20%3E%20X%20%3E%20M%20%281%29%3Cbr%3ETrong%20m%E1%BB%99t%20nh%C3%B3m%20A%2C%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20t%C4%83ng%20d%E1%BA%A7n%20theo%20chi%E1%BB%81u%20t%E1%BB%AB%20tr%C3%AAn%20xu%E1%BB%91ng%20d%C6%B0%E1%BB%9Bi%20n%C3%AAn%3A%20Y%20%3E%20%3F%20%282%29%3Cbr%3ET%E1%BB%AB%20%281%29%20v%C3%A0%20%282%29%20suy%20ra%20t%C3%ADnh%20kim%20lo%E1%BA%A1i%20Y%20%3E%20X%20%3E%20M%3Cbr%3E'></div>
+</div>
+</div>
+<div class='section' id='part5' data-parttype='5'>
+<h2>Phần 5: Trắc nghiệm kéo - thả</h2>
+<div class='question' id='part5_q1'>
+<p class='question-content'><strong>Câu 1:</strong><br><br>Ghép cấu hình electron với nguyên tố tương ứng:</p>
+<div class='drag-drop-container'>
+<div class='drag-column'>
+<div class='draggable-item' data-label='4' draggable='true' ondragstart='drag(event)' id='part5_q1_drag_0'>1s²2s²2p⁶3s¹</div>
+<div class='draggable-item' data-label='3' draggable='true' ondragstart='drag(event)' id='part5_q1_drag_1'>1s²2s²2p⁶3s² </div>
+<div class='draggable-item' data-label='1' draggable='true' ondragstart='drag(event)' id='part5_q1_drag_2'>[Ar]3d⁶4s²</div>
+<div class='draggable-item' data-label='2' draggable='true' ondragstart='drag(event)' id='part5_q1_drag_3'>1s²2s²2p⁴</div>
+</div>
+<div class='drop-column'>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='A' id='part5_q1_drop_0' data-expected='2' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Oxygen (O)</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='B' id='part5_q1_drop_1' data-expected='4' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Sodium (Na)</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='C' id='part5_q1_drop_2' data-expected='1' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Iron (Fe)</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='D' id='part5_q1_drop_3' data-expected='3' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Magnesium (Mg)</div>
+</div>
+</div>
+</div>
+</div>
+<div class='explanation' id='part5_q1_result' data-answer-pairs='[Ar]3d⁶4s² -- Iron (Fe) || 1s²2s²2p⁴ -- Oxygen (O) || 1s²2s²2p⁶3s²  -- Magnesium (Mg) || 1s²2s²2p⁶3s¹ -- Sodium (Na)' data-solution=''></div>
+</div>
+<div class='question' id='part5_q2'>
+<p class='question-content'><strong>Câu 2:</strong><br><br>Ghép nguyên tố với vị trí của nó trong bảng tuần hoàn:</p>
+<div class='drag-drop-container'>
+<div class='drag-column'>
+<div class='draggable-item' data-label='3' draggable='true' ondragstart='drag(event)' id='part5_q2_drag_0'>Magnesium (Mg, Z=12)</div>
+<div class='draggable-item' data-label='4' draggable='true' ondragstart='drag(event)' id='part5_q2_drag_1'>X (Z=8)</div>
+<div class='draggable-item' data-label='2' draggable='true' ondragstart='drag(event)' id='part5_q2_drag_2'>Phosphorus (P, Z=15)</div>
+<div class='draggable-item' data-label='1' draggable='true' ondragstart='drag(event)' id='part5_q2_drag_3'>Iron (Fe, Z=26)</div>
+</div>
+<div class='drop-column'>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='A' id='part5_q2_drop_0' data-expected='3' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Chu kì 3, nhóm IIA</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='B' id='part5_q2_drop_1' data-expected='1' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Chu kì 4, nhóm VIIIB</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='C' id='part5_q2_drop_2' data-expected='2' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Chu kì 3, nhóm VA</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='D' id='part5_q2_drop_3' data-expected='4' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Chu kì 2, nhóm VIA</div>
+</div>
+</div>
+</div>
+</div>
+<div class='explanation' id='part5_q2_result' data-answer-pairs='Iron (Fe, Z=26) -- Chu kì 4, nhóm VIIIB || Phosphorus (P, Z=15) -- Chu kì 3, nhóm VA || Magnesium (Mg, Z=12) -- Chu kì 3, nhóm IIA || X (Z=8) -- Chu kì 2, nhóm VIA' data-solution=''></div>
+</div>
+<div class='question' id='part5_q3'>
+<p class='question-content'><strong>Câu 3:</strong><br><br>Ghép tính chất hoặc đặc điểm với mô tả:</p>
+<div class='drag-drop-container'>
+<div class='drag-column'>
+<div class='draggable-item' data-label='1' draggable='true' ondragstart='drag(event)' id='part5_q3_drag_0'>Bán kính nguyên tử</div>
+<div class='draggable-item' data-label='3' draggable='true' ondragstart='drag(event)' id='part5_q3_drag_1'>Độ âm điện</div>
+<div class='draggable-item' data-label='4' draggable='true' ondragstart='drag(event)' id='part5_q3_drag_2'>Hóa trị cao nhất với O</div>
+<div class='draggable-item' data-label='2' draggable='true' ondragstart='drag(event)' id='part5_q3_drag_3'>Tính kim loại </div>
+</div>
+<div class='drop-column'>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='A' id='part5_q3_drop_0' data-expected='' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Khả năng nhận electron</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='B' id='part5_q3_drop_1' data-expected='' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Kích thước của nguyên tử</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='C' id='part5_q3_drop_2' data-expected='2' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Khả năng nhường electron</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='D' id='part5_q3_drop_3' data-expected='1, 4' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Số liên kết tối đa với Oxygen của một nguyên tố</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='E' id='part5_q3_drop_4' data-expected='3' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>Khả năng hút electron liên kết</div>
+</div>
+</div>
+</div>
+</div>
+<div class='explanation' id='part5_q3_result' data-answer-pairs='Bán kính nguyên tử -- Số liên kết tối đa với Oxygen của một nguyên tố || Tính kim loại  -- Khả năng nhường electron || Độ âm điện -- Khả năng hút electron liên kết || Hóa trị cao nhất với O -- Số liên kết tối đa với Oxygen của một nguyên tố' data-solution=''></div>
+</div>
+<div class='question' id='part5_q4'>
+<p class='question-content'><strong>Câu 4:</strong><br><br>Ghép tên nguyên tố với cấu hình electron của ion thường gặp:</p>
+<div class='drag-drop-container'>
+<div class='drag-column'>
+<div class='draggable-item' data-label='4' draggable='true' ondragstart='drag(event)' id='part5_q4_drag_0'>Potassium (K)</div>
+<div class='draggable-item' data-label='2' draggable='true' ondragstart='drag(event)' id='part5_q4_drag_1'>Sulfur (S)</div>
+<div class='draggable-item' data-label='3' draggable='true' ondragstart='drag(event)' id='part5_q4_drag_2'>Magnesium (Mg)</div>
+<div class='draggable-item' data-label='1' draggable='true' ondragstart='drag(event)' id='part5_q4_drag_3'>Aluminum (Al)</div>
+</div>
+<div class='drop-column'>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='A' id='part5_q4_drop_0' data-expected='1, 3' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>[Ne]</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='B' id='part5_q4_drop_1' data-expected='2, 4' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>[Ar] </div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='C' id='part5_q4_drop_2' data-expected='' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>[Ar]4s¹</div>
+</div>
+</div>
+<div class='dropzone-wrapper'>
+<div class='dropzone' data-label='D' id='part5_q4_drop_3' data-expected='' ondragover='allowDrop(event)' ondrop='drop(event)'>
+<div class='drop-label'>[Ne]3s²</div>
+</div>
+</div>
+</div>
+</div>
+<div class='explanation' id='part5_q4_result' data-answer-pairs='Aluminum (Al) -- [Ne] || Sulfur (S) -- [Ar]  || Magnesium (Mg) -- [Ne] || Potassium (K) -- [Ar] ' data-solution='Al%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%C2%B9%20%E2%86%92%20ion%20th%C6%B0%E1%BB%9Dng%20g%E1%BA%B7p%20Al%C2%B3%E2%81%BA%3A%201s%C2%B22s%C2%B22p%E2%81%B6%20hay%20%5BNe%5D%3Cbr%3ES%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%E2%81%B4%20%E2%86%92%20ion%20th%C6%B0%E1%BB%9Dng%20g%E1%BA%B7p%20S%C2%B2%E2%81%BB%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%E2%81%B6%20hay%20%5BAr%5D%3Cbr%3EMg%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B2%20%E2%86%92%20ion%20th%C6%B0%E1%BB%9Dng%20g%E1%BA%B7p%20Mg%C2%B2%E2%81%BA%3A%201s%C2%B22s%C2%B22p%E2%81%B6%20hay%20%5BNe%5D%3Cbr%3EK%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%E2%81%B64s%C2%B9%20%E2%86%92%20ion%20th%C6%B0%E1%BB%9Dng%20g%E1%BA%B7p%20K%E2%81%BA%3A%201s%C2%B22s%C2%B22p%E2%81%B63s%C2%B23p%E2%81%B6%20hay%20%5BAr%5D%3Cbr%3E%3Cbr%3E'></div>
+</div>
+</div>
+
+    <div style='text-align:center; margin-top:30px;'>
+      <button id='submitBtn' onclick='gradeQuiz();'>Nộp bài</button>
+    </div>
+    <script>
+      function gradeQuiz() {
+         let score = 0, total = 0;
+         document.querySelectorAll('.section').forEach(function(section) {
+           let partType = section.getAttribute('data-parttype');
+           section.querySelectorAll('.question').forEach(function(q) {
+             total++;
+             let qid = q.id;
+             let feedback = "";
+             if (partType === "1") {
+               let selected = q.querySelector('input[name="' + qid + '"]:checked');
+               let correct = q.querySelector('.explanation').getAttribute('data-answer');
+               if (!selected) {
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + correct + '</strong></span>';
+               } else if (selected.value === correct) {
+                 score++;
+                 feedback = '<span style="color:green;"><strong>Đúng (' + correct + ')</strong></span>';
+               } else {
+                 feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + correct + '</strong></span>';
+               }
+             } else if (partType === "2") {
+               let selectedList = q.querySelectorAll('input[name="' + qid + '"]:checked');
+               if (selectedList.length === 0) {
+                 let correct = q.querySelector('.explanation').getAttribute('data-answer');
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + correct + '</strong></span>';
+               } else {
+                 let userAnswers = [];
+                 selectedList.forEach(function(el) { userAnswers.push(el.value); });
+                 let correct = q.querySelector('.explanation').getAttribute('data-answer').split(',');
+                 userAnswers.sort(); correct.sort();
+                 if (userAnswers.join() === correct.join()) {
+                   score++;
+                   feedback = '<span style="color:green;"><strong>Đúng (' + correct.join(',') + ')</strong></span>';
+                 } else {
+                   feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + correct.join(',') + '</strong></span>';
+                 }
+               }
+             } else if (partType === "3") {
+               let inputElem = document.getElementById(qid + '_input');
+               let userInput = inputElem.value.trim();
+               let correctData = q.querySelector('.explanation').getAttribute('data-answer');
+               let accepted = correctData.split('||').map(s => s.trim());
+               if (!userInput) {
+                 feedback = '<span style="color:red;"><strong>Bạn chưa trả lời. Đáp án đúng: ' + accepted.join(' hoặc ') + '</strong></span>';
+               } else {
+                 if (accepted.includes(userInput)) {
+                   score++;
+                   feedback = '<span style="color:green;"><strong>Đúng</strong></span>';
+                   inputElem.style.color = 'green';
+                 } else {
+                   feedback = '<span style="color:red;"><strong>Sai. Đáp án đúng: ' + accepted.join(' hoặc ') + '</strong></span>';
+                   inputElem.style.color = 'red';
+                 }
+                 inputElem.style.fontWeight = 'bold';
+                 inputElem.disabled = true;
+               }
+             } else if (partType === "4") {
+               let inputs = q.querySelectorAll('input.auto-expand');
+               let blankResults = [];
+               inputs.forEach(function(inp, index) {
+                 let accepted = inp.getAttribute('data-answer').split('||').map(s => s.trim());
+                 let userAnswer = inp.value.trim();
+                 if (userAnswer !== "") {
+                   if (accepted.includes(userAnswer)) {
+                     blankResults.push({blank: index+1, correct: true, answer: userAnswer, accepted: accepted});
+                   } else {
+                     blankResults.push({blank: index+1, correct: false, answer: userAnswer, accepted: accepted});
+                   }
+                 } else {
+                   blankResults.push({blank: index+1, answered: false, accepted: accepted});
+                 }
+               });
+               inputs.forEach(function(inp, index) {
+                 let res = blankResults[index];
+                 if (res.answered === false) { }
+                 else {
+                   let span = document.createElement('span');
+                   span.style.fontWeight = 'bold';
+                   if (res.correct) {
+                     span.style.color = 'green';
+                     span.textContent = res.answer;
+                   } else {
+                     span.style.color = 'red';
+                     span.textContent = res.answer;
+                   }
+                   inp.parentNode.replaceChild(span, inp);
+                 }
+               });
+               let wrongBlanks = [];
+               let unansweredBlanks = [];
+               blankResults.forEach(function(r) {
+                 if (r.answered === false) { unansweredBlanks.push(r.blank); }
+                 else if (!r.correct) { wrongBlanks.push(r.blank); }
+               });
+               if (wrongBlanks.length === 0 && unansweredBlanks.length === 0) {
+                 feedback = '<span style="color:green; font-weight:bold;">Đúng</span>';
+                 score++;
+               } else {
+                 let answerList = "";
+                 blankResults.forEach(function(r) {
+                   answerList += r.blank + ') ' + r.accepted.join(', hoặc ') + '<br>';
+                 });
+                 feedback = '<span style="color:red; font-weight:bold;">Sai.';
+                 if (wrongBlanks.length > 0) {
+                   feedback += ' Bạn trả lời sai vị trí ' + wrongBlanks.join(', ') + '.';
+                 }
+                 if (unansweredBlanks.length > 0) {
+                   feedback += ' Bạn chưa trả lời vị trí ' + unansweredBlanks.join(', ') + '.';
+                 }
+                 feedback += '<br>Đáp án đúng là:<br>' + answerList + '</span>';
+               }
+             } else if (partType === "5") {
+               let correctForQuestion = true;
+               q.querySelectorAll('.dropzone').forEach(function(dropZone) {
+                 let expected = dropZone.getAttribute('data-expected').trim();
+                 let userItems = Array.from(dropZone.querySelectorAll('.draggable-item')).map(e => e.getAttribute('data-label')).sort();
+                 let expectedItems = expected ? expected.split(',').map(s => s.trim()).sort() : [];
+                 if (JSON.stringify(userItems) !== JSON.stringify(expectedItems)) {
+                   correctForQuestion = false;
+                 }
+               });
+               if (correctForQuestion) {
+                 feedback = '<span style="color:green; font-weight:bold;">Đúng</span>';
+                 score++;
+               } else {
+                 let answerPairs = q.querySelector('.explanation').getAttribute('data-answer-pairs');
+                 feedback = '<span style="color:red; font-weight:bold;">Sai. Đáp án đúng là:<br>' + answerPairs.replace(/ \|\| /g, "<br>") + '</span>';
+               }
+             }
+             let expl = q.querySelector('.explanation');
+             expl.innerHTML = feedback;
+             let encodedSolution = expl.getAttribute('data-solution');
+             let solution = encodedSolution ? decodeURIComponent(encodedSolution) : "";
+             let cleanedSolution = solution.replace(/<br\s*\/?>/gi, '').trim();
+             if (cleanedSolution !== "") {
+                 expl.innerHTML += '<div style="margin-top:10px;"><strong>Lời giải:</strong></div><div>' + solution + '</div>';
+             }
+             expl.style.display = "block";
+           });
+         });
+         document.getElementById('scoreDisplay').innerHTML = 'Tổng số điểm: ' + score + ' / ' + total;
+         document.querySelectorAll('input, select').forEach(function(inp) { inp.disabled = true; });
+         let sb = document.getElementById('submitBtn'); if(sb) sb.disabled = true;
+         MathJax.typesetPromise();
+      }
+    </script>
+  </div>
+</body>
+</html>
